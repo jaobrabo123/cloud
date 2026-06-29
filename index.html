@@ -29,6 +29,24 @@
         min-height: 54px;
         line-height: 1.5;
       }
+      #frasedia {
+        font-size: 18px;
+        color: #cbd5e1;
+        min-height: 54px;
+        line-height: 1.5;
+      }
+      #saudacao {
+        font-size: 18px;
+        color: #cbd5e1;
+        min-height: 54px;
+        line-height: 1.5;
+      }
+      #numerovisita {
+        font-size: 18px;
+        color: #cbd5e1;
+        min-height: 54px;
+        line-height: 1.5;
+      }
       button {
         margin-top: 18px;
         background: #38bdf8;
@@ -49,7 +67,14 @@
     <main>
       <h1>Olá, Nuvem</h1>
       <p id="status">Carregando a resposta do servidor...</p>
+      <p id="frasedia">Frase do Dia:</p>
+      <p id="saudacao">Saudação:</p>
+      <p id="numerovisita">Número da visita:</p>
+      <input type="text" id="seunome" placeholder="Digite o seu nome" />
+      <br />
       <button id="btn">Buscar de novo</button>
+      <p id="numero">Numero sorteado:</p>
+      <button id="btn2">Buscar numero aleatorio</button>
     </main>
 
     <script>
@@ -59,19 +84,61 @@
 
       async function buscar() {
         const status = document.getElementById("status");
+        const fraseDia = document.getElementById("frasedia");
+        const saudacao = document.getElementById("saudacao");
+        const numerovisita = document.getElementById("numerovisita");
         status.textContent = "Buscando...";
+        fraseDia.textContent = "Frase do Dia:";
+        saudacao.textContent = "Saudação:";
+        numerovisita.textContent = "Número da visita:";
+
         try {
-          const resposta = await fetch(URL_DO_WORKER);
+          const resposta = await fetch(
+            URL_DO_WORKER +
+              `/hora?nome=${document.getElementById("seunome").value}`,
+          );
+          if (!resposta.ok) {
+            throw new Error(resposta.status);
+          }
+
           const dados = await resposta.json();
           status.textContent =
             dados.mensagem + " Hora do servidor: " + dados.horaDoServidor;
+
+          fraseDia.textContent = "Frase do Dia: " + dados.fraseDoDia;
+          saudacao.textContent = "Saudação: " + dados.saudacao;
+          numerovisita.textContent = "Número da visita: " + dados.numeroVisita;
         } catch (erro) {
           status.textContent =
             "Não consegui falar com o Worker. Confira a URL.";
+          fraseDia.textContent = "Frase do Dia:";
+          saudacao.textContent = "Saudação:";
+          numerovisita.textContent = "Número da visita:";
+
+          alert("Erro: " + erro.message);
+        }
+      }
+
+      async function sortearNumero() {
+        const numero = document.getElementById("numero");
+        numero.textContent = "Numero sorteado:";
+
+        try {
+          const resposta = await fetch(URL_DO_WORKER + `/sorteio`);
+          if (!resposta.ok) {
+            throw new Error(resposta.status);
+          }
+          const dados = await resposta.json();
+          numero.textContent = "Numero sorteado: " + dados.numeroAleatorio;
+        } catch (erro) {
+          numero.textContent = "Numero sorteado:";
+
+          alert("Erro: " + erro.message);
         }
       }
 
       document.getElementById("btn").addEventListener("click", buscar);
+      document.getElementById("btn2").addEventListener("click", sortearNumero);
       buscar();
     </script>
   </body>
